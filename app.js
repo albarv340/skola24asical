@@ -143,7 +143,7 @@ function get_events(domain, school, group, week, callback) {
     times.splice(0, 38);
     // console.log(times);
     times_start = times.filter(
-      (e, i) => (e.x - 21) % 27 == 0 || ((e.x - 7) % 81 == 0 && e.x != 7)
+      (e, i) => (e.x - 21) % 27 == 0 || (e.x - 7) % 81 == 0
     );
     // console.log(times_start);
     // for (let i = 0; i < times.length; i++) {
@@ -160,6 +160,26 @@ function get_events(domain, school, group, week, callback) {
     // }
     times_end = times.filter((e, i) => (e.x - 27) % 27 == 0);
     // console.log(times_end);
+    let times_start_end = [];
+    times_start.forEach((start, starti) => {
+      let distances = [];
+      times_end.forEach((end, endi) => {
+        if (end.x > start.x && end.y > start.y) {
+          distances.push({
+            distance: Math.sqrt(
+              Math.pow(start.x - end.x, 2) + Math.pow(end.y - start.y, 2)
+            ),
+            start_index: starti,
+            end_index: endi
+          });
+        }
+      });
+      distances.sort(function(a, b) {
+        return a - b;
+      });
+
+      console.log(distances);
+    });
 
     // If start and end-times are more than start-times, something is fishy
     // Known reasons:
