@@ -15,28 +15,17 @@ function main() {
     );
   });
 
-  app.get("/schedule/:domain/:schoolGuid/:groupGuid", (req, res) => {
-    const domain = req.params.domain;
-    const school = req.params.schoolGuid;
-    const group = req.params.groupGuid;
-    weeks = [0]
-      .map(x => (x + moment().isoWeek()) % 52)
-      .map(x => (x == 0 ? 52 : x));
-    console.log("Fetching schedule for ", domain, school, group);
-    console.log("During weeks: ", weeks);
-    counter = weeks.length;
+  app.get("/schedule/:signature/:week/", (req, res) => {
+    const signature = req.params.signature;
+    const week = req.params.week;
+    console.log("Fetching schedule for ");
+    console.log("During weeks: ");
     all_events = [];
 
-    weeks.map(week =>
-      get_events(domain, school, group, week, events => {
-        all_events = all_events.concat(events);
-        counter--;
-        if (counter == 0) {
-          // console.log("Sending", all_events)
-          res.send(transform_to_ics_events(all_events));
-        }
-      })
-    );
+    get_events(signature, week, events => {
+      all_events = all_events.concat(events);
+      res.send(transform_to_ics_events(all_events));
+    });
   });
 
   app.listen(8080, () => console.log("Started!"));
@@ -55,7 +44,7 @@ function main() {
   // })
 }
 
-function get_events(domain, school, group, week, callback) {
+function get_events(signature, week, callback) {
   const re_weekday = /(Måndag\s\d*\/\d*)|(Tisdag\s\d*\/\d*)|(Onsdag\s\d*\/\d*)|(Torsdag\s\d*\/\d*)|(Fredag\s\d*\/\d*)/i;
   const re_time = /^\d*:\d*/i;
   const re_text = /\X*/i;
@@ -68,7 +57,7 @@ function get_events(domain, school, group, week, callback) {
       divHeight: 500,
       headerEnabled: false,
       selectedPeriod: null,
-      selectedWeek: 3,
+      selectedWeek: week,
       selectedTeacher: null,
       selectedGroup: null,
       selectedClass: null,
@@ -87,7 +76,7 @@ function get_events(domain, school, group, week, callback) {
         }
       },
       selectedSignatures: {
-        signature: "te17e"
+        signature: signature
       },
       selectedDay: 0,
       domain: "linkoping.skola24.se"
@@ -253,11 +242,11 @@ function transform_to_ics_events(events) {
       .split("/")
       .reverse()
       .map(x => parseInt(x));
-    console.log(date);
+    // console.log(date);
     const start = e.start.split(":").map(x => parseInt(x));
-    console.log(start);
+    // console.log(start);
     const end = e.end.split(":").map(x => parseInt(x));
-    console.log(end);
+    // console.log(end);
     const start_date = fix_timezone([
       year,
       date[0] - 1,
