@@ -235,7 +235,7 @@ function transform_to_ics_events(events) {
   //   console.log(events);
   const re_date = /\d*\/\d*/i;
   const year = new Date().getFullYear();
-  const fix_timezone = date => moment.tz(date, "Europe/London").toDate();
+  const fix_timezone = date => moment.tz(date, "Europe/Stockholm").toDate();
 
   ics_events = events.map(e => {
     const date = new String(e.day.match(re_date))
