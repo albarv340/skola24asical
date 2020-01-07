@@ -106,9 +106,9 @@ function get_events(domain, school, group, week, callback) {
 
   return request.post(options, function(error, response, body) {
     const vertical_match = (rect, list) =>
-      list.filter(item => item.x > rect.x1 && item.x < rect.x2);
+      list.filter(item => item.x + 10 > rect.x1 && item.x - 10 < rect.x2);
     const horizontal_match = (rect, list) =>
-      list.filter(item => item.y > rect.y1 && item.y < rect.y2);
+      list.filter(item => item.y + 10 > rect.y1 && item.y - 10 < rect.y2);
     const inside = (rect, list) =>
       vertical_match(rect, horizontal_match(rect, list));
 
@@ -124,7 +124,7 @@ function get_events(domain, school, group, week, callback) {
     weekdays = res.data.textList.filter(e => e.text.match(re_weekday));
     // console.log(weekdays);
     times = res.data.textList.filter(e => e.text.match(re_time));
-    console.log(times);
+    // console.log(times);
     texts = res.data.textList.filter(
       e =>
         e.text.match(re_text) &&
@@ -167,7 +167,7 @@ function get_events(domain, school, group, week, callback) {
         if (end.x > start.x && end.y > start.y) {
           distances.push({
             distance: Math.sqrt(
-              Math.pow(start.x - end.x, 2) + Math.pow(end.y - start.y, 2)
+              Math.pow(end.x - start.x, 2.5) + Math.pow(end.y - start.y, 2)
             ),
             start_index: starti,
             end_index: endi
@@ -175,12 +175,18 @@ function get_events(domain, school, group, week, callback) {
         }
       });
       distances.sort(function(a, b) {
-        return a - b;
+        return a.distance - b.distance;
       });
-
-      console.log(distances);
+      times_start_end.push(times_start[distances[0].start_index]);
+      times_start_end.push(times_end[distances[0].end_index]);
+      // console.log(distances);
     });
+    // console.log(times_start_end);
 
+    times_start = times_start_end.filter((e, i) => i % 2 == 0);
+    times_end = times_start_end.filter((e, i) => i % 2 == 1);
+
+    // console.log(times_start, times_end);
     // If start and end-times are more than start-times, something is fishy
     // Known reasons:
     //      - collisions in schedule
@@ -189,7 +195,22 @@ function get_events(domain, school, group, week, callback) {
     // if (times_start.length > times_end.length) {
     //   return callback([]);
     // }
-
+    const weekdayCheck = (rect, list) => {
+      // console.log(rect);
+      // console.log(list);
+      if (rect.x1 < 110) {
+        list = list.filter(item => item.x == 52);
+      } else if (rect.x1 >= 110 && rect.x1 < 193) {
+        list = list.filter(item => item.x == 132);
+      } else if (rect.x1 >= 193 && rect.x1 < 275) {
+        list = list.filter(item => item.x == 213);
+      } else if (rect.x1 >= 275 && rect.x1 < 357) {
+        list = list.filter(item => item.x == 295);
+      } else if (rect.x1 >= 357) {
+        list = list.filter(item => item.x == 377);
+      }
+      return list;
+    };
     events = times_start
       .map((e, i) => {
         o = {
@@ -211,8 +232,9 @@ function get_events(domain, school, group, week, callback) {
         // console.log(event.title);
         // console.log(event);
         event.room = text(inside(event, rooms));
-        event.day = text(vertical_match(event, weekdays));
-        // console.log(event, "hej", weekdays);
+        event.day = text(weekdayCheck(event, weekdays));
+        // console.log(event, weekdays);
+        // console.log(event.day);
         return event;
       });
 
@@ -224,20 +246,18 @@ function transform_to_ics_events(events) {
   //   console.log(events);
   const re_date = /\d*\/\d*/i;
   const year = new Date().getFullYear();
-  const fix_timezone = date =>
-    moment
-      .tz(date, "Europe/Stockholm")
-      .clone()
-      .tz("Europe/London")
-      .toDate();
+  const fix_timezone = date => moment.tz(date, "Europe/London").toDate();
 
   ics_events = events.map(e => {
     const date = new String(e.day.match(re_date))
       .split("/")
       .reverse()
       .map(x => parseInt(x));
+    console.log(date);
     const start = e.start.split(":").map(x => parseInt(x));
+    console.log(start);
     const end = e.end.split(":").map(x => parseInt(x));
+    console.log(end);
     const start_date = fix_timezone([
       year,
       date[0] - 1,
@@ -245,7 +265,9 @@ function transform_to_ics_events(events) {
       start[0],
       start[1]
     ]);
+    // console.log(start_date);
     const end_date = fix_timezone([year, date[0] - 1, date[1], end[0], end[1]]);
+    // console.log(end_date);
     // console.log(e);
     event = {
       summary: e.title,
@@ -253,11 +275,12 @@ function transform_to_ics_events(events) {
       start: start_date,
       end: end_date
     };
+    // console.log(event);
     return event;
   });
   cal = ical({
     domain: "localhost",
-    timezone: "Europe/Stockholm"
+    timezone: "Europe/London"
   });
   cal.events(ics_events);
   return cal.toString();
