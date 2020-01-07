@@ -269,7 +269,7 @@ function transform_to_ics_events(events) {
   });
   cal = ical({
     domain: "localhost",
-    timezone: "Europe/London"
+    timezone: "Europe/Stockholm"
   });
   cal.events(ics_events);
   return cal.toString();
