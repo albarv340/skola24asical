@@ -15,12 +15,11 @@ function main() {
     );
   });
 
-  app.get("/:signature", (req, res) => {
+  app.get("/subscribe/:signature/", (req, res) => {
     let signature = req.params.signature;
     let week = moment(new Date()).isoWeek();
-    console.log(week);
-    console.log("Fetching schedule for ");
-    console.log("During weeks: ");
+    console.log("Fetching schedule for " + signature);
+    console.log("During week: " + week);
     all_events = [];
 
     get_events(signature, week, events => {
@@ -29,13 +28,12 @@ function main() {
     });
   });
 
-  app.get("/:signature/:week", (req, res) => {
+  app.get("/schedule/:signature/:week", (req, res) => {
     let signature = req.params.signature;
     let week = req.params.week;
-    console.log("Fetching schedule for ");
-    console.log("During weeks: ");
+    console.log("Fetching schedule for " + signature);
+    console.log("During week: " + week);
     all_events = [];
-
     get_events(signature, week, events => {
       all_events = all_events.concat(events);
       res.send(transform_to_ics_events(all_events));
@@ -96,7 +94,6 @@ function get_events(signature, week, callback) {
       domain: "linkoping.skola24.se"
     }
   };
-
   const options = {
     url: "https://web.skola24.se/timetable/timetable-viewer/data/render",
     headers: {
@@ -123,7 +120,10 @@ function get_events(signature, week, callback) {
         .replace(star, "");
 
     res = JSON.parse(body);
-    // console.log(res.data.boxList);
+    // console.log(res.data);
+    if (res.data === null) {
+      return;
+    }
     weekdays = res.data.textList.filter(e => e.text.match(re_weekday));
     // console.log(weekdays);
     times = res.data.textList.filter(e => e.text.match(re_time));

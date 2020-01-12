@@ -9,7 +9,8 @@ I made this for my brother so that he is not forced to add the entries manually 
 ## Usage:
 
 ```web
-https://example.com/:signature/:week
+https://example.com/schedule/:signature/:week
+https://example.com/subscribe/:signature
 ```
 
 Use your local skola24.se web view to find out your specific domain, schoolGuid and groupGuid
@@ -18,7 +19,8 @@ Use your local skola24.se web view to find out your specific domain, schoolGuid 
 
 ````web
 https://skola24.robingronberg.se/schedule/goteborg.skola24.se/c7a07cfd-25b1-439d-a37c-10638e2be616/a9ff834a-dcdf-4e39-afdb-583f7e6c58d1
-```https://example.com/te17e/3
+```https://example.com/schedule/te17e/3
+```https://example.com/subscribe/te17e
 
 where
 
