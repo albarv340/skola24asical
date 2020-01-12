@@ -15,7 +15,21 @@ function main() {
     );
   });
 
-  app.get("/schedule/:signature/:week/", (req, res) => {
+  app.get("/:signature/", (req, res) => {
+    const signature = req.params.signature;
+    const week = moment(new Date()).isoWeek();
+    console.log(week);
+    console.log("Fetching schedule for ");
+    console.log("During weeks: ");
+    all_events = [];
+
+    get_events(signature, week, events => {
+      all_events = all_events.concat(events);
+      res.send(transform_to_ics_events(all_events));
+    });
+  });
+
+  app.get("/:signature/:week", (req, res) => {
     const signature = req.params.signature;
     const week = req.params.week;
     console.log("Fetching schedule for ");
@@ -28,7 +42,7 @@ function main() {
     });
   });
 
-  app.listen(8080, () => console.log("Started!"));
+  app.listen(2400, () => console.log("Started!"));
 
   // const school = {
   //     "Guid": "c7a07cfd-25b1-439d-a37c-10638e2be616"
@@ -156,7 +170,7 @@ function get_events(signature, week, callback) {
         if (end.x > start.x && end.y > start.y) {
           distances.push({
             distance: Math.sqrt(
-              Math.pow(end.x - start.x, 2.5) + Math.pow(end.y - start.y, 2)
+              Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)
             ),
             start_index: starti,
             end_index: endi
@@ -186,17 +200,17 @@ function get_events(signature, week, callback) {
     // }
     const weekdayCheck = (rect, list) => {
       // console.log(rect);
-      // console.log(list);
+      console.log(list);
       if (rect.x1 < 110) {
-        list = list.filter(item => item.x == 52);
+        list = list.filter(item => item.x >= 50 && item.x <= 55);
       } else if (rect.x1 >= 110 && rect.x1 < 193) {
-        list = list.filter(item => item.x == 132);
+        list = list.filter(item => item.x >= 130 && item.x <= 135);
       } else if (rect.x1 >= 193 && rect.x1 < 275) {
-        list = list.filter(item => item.x == 213);
+        list = list.filter(item => item.x >= 210 && item.x <= 215);
       } else if (rect.x1 >= 275 && rect.x1 < 357) {
-        list = list.filter(item => item.x == 295);
+        list = list.filter(item => item.x >= 292 && item.x <= 297);
       } else if (rect.x1 >= 357) {
-        list = list.filter(item => item.x == 377);
+        list = list.filter(item => item.x >= 375 && item.x <= 380);
       }
       return list;
     };
@@ -232,7 +246,7 @@ function get_events(signature, week, callback) {
 }
 
 function transform_to_ics_events(events) {
-  //   console.log(events);
+  // console.log(events);
   const re_date = /\d*\/\d*/i;
   const year = new Date().getFullYear();
   const fix_timezone = date => moment.tz(date, "Europe/Stockholm").toDate();
