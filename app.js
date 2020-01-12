@@ -17,15 +17,29 @@ function main() {
 
   app.get("/subscribe/:signature/", (req, res) => {
     let signature = req.params.signature;
-    let week = moment(new Date()).isoWeek();
+    // let week = moment(new Date()).isoWeek();
+    weeks = [0, 1, 2, 3, 4]
+      .map(x => (x + moment().isoWeek()) % 52)
+      .map(x => (x == 0 ? 52 : x));
+    counter = weeks.length;
     console.log("Fetching schedule for " + signature);
-    console.log("During week: " + week);
+    console.log("During weeks: " + weeks);
     all_events = [];
 
-    get_events(signature, week, events => {
-      all_events = all_events.concat(events);
-      res.send(transform_to_ics_events(all_events));
-    });
+    // get_events(signature, week, events => {
+    //   all_events = all_events.concat(events);
+    //   res.send(transform_to_ics_events(all_events));
+    // });
+    weeks.map(week =>
+      get_events(signature, week, events => {
+        all_events = all_events.concat(events);
+        counter--;
+        if (counter == 0) {
+          // console.log("Sending", all_events)
+          res.send(transform_to_ics_events(all_events));
+        }
+      })
+    );
   });
 
   app.get("/schedule/:signature/:week", (req, res) => {
