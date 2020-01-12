@@ -15,9 +15,9 @@ function main() {
     );
   });
 
-  app.get("/:signature/", (req, res) => {
-    const signature = req.params.signature;
-    const week = moment(new Date()).isoWeek();
+  app.get("/:signature", (req, res) => {
+    let signature = req.params.signature;
+    let week = moment(new Date()).isoWeek();
     console.log(week);
     console.log("Fetching schedule for ");
     console.log("During weeks: ");
@@ -30,8 +30,8 @@ function main() {
   });
 
   app.get("/:signature/:week", (req, res) => {
-    const signature = req.params.signature;
-    const week = req.params.week;
+    let signature = req.params.signature;
+    let week = req.params.week;
     console.log("Fetching schedule for ");
     console.log("During weeks: ");
     all_events = [];
