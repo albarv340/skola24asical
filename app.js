@@ -200,7 +200,7 @@ function get_events(signature, week, callback) {
     // }
     const weekdayCheck = (rect, list) => {
       // console.log(rect);
-      console.log(list);
+      // console.log(list);
       if (rect.x1 < 110) {
         list = list.filter(item => item.x >= 50 && item.x <= 55);
       } else if (rect.x1 >= 110 && rect.x1 < 193) {
