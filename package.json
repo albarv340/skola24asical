@@ -2,8 +2,11 @@
   "name": "skola24asical",
   "version": "0.1.0",
   "description": "Converts skola24 to ical format",
-  "repository": "https://github.com/Gronis/skola24asical.git",
-  "author": "Robin Grönberg <robin.gronberg@gmail.com>, Albin Arvidsson <albin@arvidsson.tk>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Gronis/skola24asical.git"
+  },
+  "author": "Robin Grönberg <robin.gronberg@gmail.com>",
   "license": "MIT",
   "devDependencies": {},
   "dependencies": {
@@ -12,5 +15,13 @@
     "moment-timezone": "0.5.14",
     "express": "4.16.2",
     "async": "2.6.0"
+  },
+  "bugs": {
+    "url": "https://github.com/Gronis/skola24asical/issues"
+  },
+  "homepage": "https://github.com/Gronis/skola24asical#readme",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   }
 }
