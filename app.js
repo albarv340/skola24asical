@@ -175,7 +175,7 @@ function get_events(signature, week, callback) {
     //     }
     //   }
     // }
-    times_end = times.filter((e, i) => (e.x - 27) % 27 == 0);
+    times_end = times.filter((e, i) => e.x % 27 == 0 || e.x % 27 == 4);
     // console.log(times_end);
     let times_start_end = [];
     times_start.forEach((start, starti) => {
