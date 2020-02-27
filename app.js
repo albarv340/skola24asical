@@ -11,7 +11,7 @@ function main() {
 
   app.get("/", (req, res) => {
     res.send(
-      'Använd denna sida för att kunna prenumerera på ett schema av skola24.se i ical format. See projektet på github: <a href="https://github.com/Gronis/skola24asical">https://github.com/Gronis/skola24asical</a>'
+      'Använd denna sida för att kunna prenumerera på ett schema av skola24.se i ical format. <a href="/subscribe/te17e">subscribe te17e</a>'
     );
   });
 
@@ -181,7 +181,7 @@ function get_events(signature, week, callback) {
     times_start.forEach((start, starti) => {
       let distances = [];
       times_end.forEach((end, endi) => {
-        if (end.x > start.x && end.y > start.y) {
+        if (end.x > start.x && end.y > start.y && end.x - start.x < 100) {
           distances.push({
             distance: Math.sqrt(
               Math.pow(end.x - start.x, 2) + Math.pow(end.y - start.y, 2)
