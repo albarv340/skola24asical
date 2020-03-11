@@ -5,6 +5,8 @@ const moment = require("moment-timezone");
 const util = require("util");
 const express = require("express");
 const async = require("async");
+const fs = require('fs');
+
 
 function main() {
   var app = express();
@@ -18,7 +20,7 @@ function main() {
   app.get("/subscribe/:signature/", (req, res) => {
     let signature = req.params.signature;
     // let week = moment(new Date()).isoWeek();
-    weeks = [0, 1, 2, 3, 4]
+    weeks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
       .map(x => (x + moment().isoWeek()) % 52)
       .map(x => (x == 0 ? 52 : x));
     counter = weeks.length;
@@ -36,7 +38,7 @@ function main() {
         counter--;
         if (counter == 0) {
           // console.log("Sending", all_events)
-          res.send(transform_to_ics_events(all_events));
+          res.send(transform_to_ics_events(all_events, false, signature));
         }
       })
     );
@@ -50,11 +52,43 @@ function main() {
     all_events = [];
     get_events(signature, week, events => {
       all_events = all_events.concat(events);
-      res.send(transform_to_ics_events(all_events));
+      res.send(transform_to_ics_events(all_events, false, signature));
     });
   });
 
-  app.listen(2400, () => console.log("Started!"));
+  app.get("/download/:signature/", (req, res) => {
+    let signature = req.params.signature;
+    // let week = moment(new Date()).isoWeek();
+    weeks = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+      .map(x => (x + moment().isoWeek()) % 52)
+      .map(x => (x == 0 ? 52 : x));
+    counter = weeks.length;
+    console.log("Fetching schedule for " + signature);
+    console.log("During weeks: " + weeks);
+    all_events = [];
+
+    // get_events(signature, week, events => {
+    //   all_events = all_events.concat(events);
+    //   res.send(transform_to_ics_events(all_events));
+    // });
+    weeks.map(week =>
+      get_events(signature, week, events => {
+        all_events = all_events.concat(events);
+        counter--;
+        if (counter == 0) {
+          // console.log("Sending", all_events)
+          transform_to_ics_events(all_events, true, signature);
+          setTimeout(() => {
+            const file = `/tmp/${signature}.ical`;
+            console.log(file);
+            res.download(file);
+          }, 1000);
+        }
+      })
+    );
+  });
+
+  app.listen(2424, () => console.log("Started!"));
 
   // const school = {
   //     "Guid": "c7a07cfd-25b1-439d-a37c-10638e2be616"
@@ -259,7 +293,7 @@ function get_events(signature, week, callback) {
   });
 }
 
-function transform_to_ics_events(events) {
+function transform_to_ics_events(events, download, signature) {
   // console.log(events);
   const re_date = /\d*\/\d*/i;
   const year = new Date().getFullYear();
@@ -300,6 +334,15 @@ function transform_to_ics_events(events) {
     timezone: "Europe/Stockholm"
   });
   cal.events(ics_events);
+  if(download){
+    fs.writeFile(`/tmp/${signature}.ical`, cal.toString(), function(err) {
+      if(err) {
+          return console.log(err);
+      }
+      console.log("The file was saved!");
+  }); 
+
+  }
   return cal.toString();
 }
 
